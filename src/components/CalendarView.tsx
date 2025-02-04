@@ -5,13 +5,6 @@ import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useEvents } from "@/hooks/useEvents";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const locales = {
   "en-US": enUS,
@@ -26,16 +19,11 @@ const localizer = dateFnsLocalizer({
 });
 
 export const CalendarView = () => {
-  const [view, setView] = useState(Views.WEEK);
   const [date, setDate] = useState(new Date());
   const { data: events, isLoading, error } = useEvents();
   const { toast } = useToast();
 
-  const handleViewChange = (newView: string) => {
-    setView(newView);
-  };
-
-  // Show error toast if fetch fails - moved to useEffect
+  // Show error toast if fetch fails
   useEffect(() => {
     if (error) {
       toast({
@@ -48,21 +36,6 @@ export const CalendarView = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-4">
-      <div className="flex justify-end items-center mb-4">
-        <Select
-          value={view}
-          onValueChange={(value) => handleViewChange(value)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select view" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={Views.MONTH}>Month</SelectItem>
-            <SelectItem value={Views.WEEK}>Week</SelectItem>
-            <SelectItem value={Views.DAY}>Day</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
       <div className="h-[700px]">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
@@ -74,8 +47,7 @@ export const CalendarView = () => {
             events={events || []}
             startAccessor="start"
             endAccessor="end"
-            view={view}
-            onView={handleViewChange}
+            view={Views.WEEK}
             date={date}
             onNavigate={setDate}
             eventPropGetter={(event) => ({

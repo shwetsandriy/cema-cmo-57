@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
@@ -35,14 +35,16 @@ export const CalendarView = () => {
     setView(newView);
   };
 
-  // Show error toast if fetch fails
-  if (error) {
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: "Failed to load events. Please try again later.",
-    });
-  }
+  // Show error toast if fetch fails - moved to useEffect
+  useEffect(() => {
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load events. Please try again later.",
+      });
+    }
+  }, [error, toast]);
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-4">

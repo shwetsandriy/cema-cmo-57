@@ -4,7 +4,6 @@ import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { mockEvents } from "@/lib/mockData";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -29,45 +28,13 @@ export const CalendarView = () => {
   const [view, setView] = useState(Views.WEEK);
   const [date, setDate] = useState(new Date());
 
-  const handleNavigate = (newDate: Date) => {
-    setDate(newDate);
-  };
-
   const handleViewChange = (newView: string) => {
     setView(newView);
   };
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-4">
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => handleNavigate(new Date())}
-          >
-            Today
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() =>
-              handleNavigate(
-                new Date(date.setDate(date.getDate() - 7))
-              )
-            }
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() =>
-              handleNavigate(
-                new Date(date.setDate(date.getDate() + 7))
-              )
-            }
-          >
-            Next
-          </Button>
-        </div>
+      <div className="flex justify-end items-center mb-4">
         <Select
           value={view}
           onValueChange={(value) => handleViewChange(value)}
@@ -91,7 +58,7 @@ export const CalendarView = () => {
           view={view}
           onView={handleViewChange}
           date={date}
-          onNavigate={handleNavigate}
+          onNavigate={setDate}
           eventPropGetter={(event) => ({
             className: `bg-${event.color} text-white rounded-lg`,
           })}

@@ -27,8 +27,20 @@ const fetchEvents = async (): Promise<CalendarEvent[]> => {
 
   return data.value.map((event, index) => ({
     title: event.Title,
-    start: new Date(event.field_10),
-    end: new Date(event.field_10),
+    start: new Date(Date.UTC(
+      new Date(event.field_10).getUTCFullYear(),
+      new Date(event.field_10).getUTCMonth(),
+      new Date(event.field_10).getUTCDate(),
+      new Date(event.field_10).getUTCHours(),
+      new Date(event.field_10).getUTCMinutes()
+    )), 
+    end: new Date(Date.UTC(
+      new Date(event.field_10).getUTCFullYear(),
+      new Date(event.field_10).getUTCMonth(),
+      new Date(event.field_10).getUTCDate(),
+      new Date(event.field_10).getUTCHours(),
+      new Date(event.field_10).getUTCMinutes()
+    )),
     color: ["purple-500", "teal-500", "pink-500"][index % 3],
   }));
 };

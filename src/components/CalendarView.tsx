@@ -19,14 +19,9 @@ const localizer = dateFnsLocalizer({
 });
 
 export const CalendarView = () => {
-  const [view, setView] = useState(Views.WEEK);
   const [date, setDate] = useState(new Date());
   const { data: events, isLoading, error } = useEvents();
   const { toast } = useToast();
-
-  const handleViewChange = (newView: string) => {
-    setView(newView);
-  };
 
   useEffect(() => {
     if (error) {
@@ -51,8 +46,7 @@ export const CalendarView = () => {
             events={events || []}
             startAccessor="start"
             endAccessor="end"
-            view={view}
-            onView={handleViewChange}
+            view={Views.MONTH}
             date={date}
             onNavigate={setDate}
             eventPropGetter={(event) => ({

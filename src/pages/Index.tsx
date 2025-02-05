@@ -2,9 +2,9 @@ import { CustomView } from "@/components/CalendarView";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-[#F2FCE2]">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="w-full bg-white shadow-sm py-2 px-4 mb-4">
+      <header className="w-full bg-[#F2FCE2] shadow-sm py-2 px-4 mb-4 sticky top-0 z-50">
         <div className="max-w-[1400px] mx-auto flex items-center">
           <div className="flex items-center gap-2">
             <img

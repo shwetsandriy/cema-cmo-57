@@ -122,15 +122,6 @@ function QuarterView({
   );
 }
 
-QuarterView.propTypes = {
-  date: PropTypes.instanceOf(Date).isRequired,
-  localizer: PropTypes.object.isRequired,
-  events: PropTypes.array.isRequired,
-  max: PropTypes.instanceOf(Date),
-  min: PropTypes.instanceOf(Date),
-  scrollToTime: PropTypes.instanceOf(Date),
-};
-
 QuarterView.range = (date: Date, { localizer }: { localizer: DateLocalizer }) => {
   const start = localizer.startOf(date, 'quarter');
   const end = localizer.endOf(start, 'quarter');

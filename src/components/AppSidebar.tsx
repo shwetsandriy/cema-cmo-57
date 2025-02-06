@@ -28,22 +28,37 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
+import { useCalendarStore } from "@/stores/calendarStore";
+
 export function AppSidebar() {
+  const { activeView, setActiveView } = useCalendarStore();
+
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
           <Collapsible>
             <CollapsibleTrigger className="flex w-full items-center justify-between px-2 py-2 text-sm hover:bg-gray-100">
-              <span>View</span>
+              <span>Views</span>
               <ChevronDown className="h-4 w-4" />
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="px-4 py-2">
                 <div className="space-y-2">
-                  <button className="text-blue-500 text-sm">Week</button>
-                  <div className="text-sm">Month</div>
-                  <div className="text-sm">Timeline</div>
+                  <button 
+                    className={`text-sm ${activeView === 'month' ? 'text-blue-500 font-semibold' : ''}`}
+                    onClick={() => setActiveView('month')}
+                  >
+                    Month
+                  </button>
+                  <div>
+                    <button 
+                      className={`text-sm ${activeView === 'quarter' ? 'text-blue-500 font-semibold' : ''}`}
+                      onClick={() => setActiveView('quarter')}
+                    >
+                      Quarter
+                    </button>
+                  </div>
                 </div>
               </div>
             </CollapsibleContent>

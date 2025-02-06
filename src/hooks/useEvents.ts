@@ -9,6 +9,9 @@ interface ApiResponse {
 interface Value {
   Title: string;
   field_10: string;
+  field_3: { Value: string };
+  field_1: { Value: string };
+  field_6: { Value: string };
 }
 
 interface CalendarEvent {
@@ -18,15 +21,24 @@ interface CalendarEvent {
   color: string;
 }
 
-const fetchEvents = async (): Promise<CalendarEvent[]> => {
+const fetchEvents = async (areaFilter, eventTypeFilter, csaFilter): Promise<CalendarEvent[]> => {
   const response = await fetch(API_URL);
   if (!response.ok) {
     throw new Error("Failed to fetch events");
   }
   const data: ApiResponse = await response.json();
 
-  return data.value.map((event, index) => ({
+  const filteredEvents = data.value.filter(event => 
+    (areaFilter === "All" || event.field_3?.Value === areaFilter) &&
+    (eventTypeFilter === "All" || event.field_6?.Value === eventTypeFilter) &&
+    (csaFilter === "All" || event.field_1?.Value === csaFilter)
+  );
+
+  return filteredEvents.map((event, index) => ({
     title: event.Title,
+    region: event.field_3?.Value,
+    csa: event.field_1?.Value,
+    eventType: event.field_6?.Value,
     start: new Date(Date.UTC(
       new Date(event.field_10).getUTCFullYear(),
       new Date(event.field_10).getUTCMonth(),
@@ -45,9 +57,9 @@ const fetchEvents = async (): Promise<CalendarEvent[]> => {
   }));
 };
 
-export const useEvents = () => {
+export const useEvents = (areaFilter, eventTypeFilter, csaFilter) => {
   return useQuery({
-    queryKey: ["events"],
-    queryFn: fetchEvents,
+    queryKey: ["events", areaFilter, eventTypeFilter, csaFilter],
+    queryFn: () => fetchEvents(areaFilter, eventTypeFilter, csaFilter),
   });
 };

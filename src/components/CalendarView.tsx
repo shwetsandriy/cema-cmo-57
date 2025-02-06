@@ -163,10 +163,10 @@ QuarterView.title = (date) => {
   return `${formatDate(startOfQuarter)} - ${formatDate(endOfQuarter)}`;
 };
 
-export const CustomView = () => {
-  const { data: events, isLoading, error } = useEvents();
+export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEventType, selectedCsa  }) => {
+  const { data: events, isLoading, error } = useEvents(selectedArea, selectedEventType, selectedCsa);
   const [date, setDate] = useState(new Date());
-  const [activeView, setActiveView] = useState(Views.MONTH); // Track the active view
+  // const [activeView, setActiveView] = useState(Views.MONTH); // Track the active view
   const localizer = luxonLocalizer(DateTime);
   const { defaultDate, views } = useMemo(
     () => ({
@@ -218,8 +218,9 @@ export const CustomView = () => {
             defaultView={Views.MONTH}
             date={date}
             views={views}
+            view={activeView}
             onNavigate={setDate}
-            onView={setActiveView} // Track view change
+            onView={setActiveView}
             messages={{
               quarter: 'Quarter'
             }}

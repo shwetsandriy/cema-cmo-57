@@ -28,7 +28,11 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
+import { useCalendarStore } from "@/stores/calendarStore";
+
 export function AppSidebar() {
+  const { setView } = useCalendarStore();
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -41,9 +45,20 @@ export function AppSidebar() {
             <CollapsibleContent>
               <div className="px-4 py-2">
                 <div className="space-y-2">
-                  <button className="text-blue-500 text-sm">Week</button>
-                  <div className="text-sm">Month</div>
-                  <div className="text-sm">Timeline</div>
+                  <button 
+                    onClick={() => setView('month')} 
+                    className="text-sm hover:text-blue-500 transition-colors"
+                  >
+                    Month
+                  </button>
+                  <div>
+                    <button 
+                      onClick={() => setView('quarter')} 
+                      className="text-sm hover:text-blue-500 transition-colors"
+                    >
+                      Quarter
+                    </button>
+                  </div>
                 </div>
               </div>
             </CollapsibleContent>

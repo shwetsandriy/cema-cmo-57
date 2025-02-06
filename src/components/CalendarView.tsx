@@ -1,11 +1,11 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react'
-import PropTypes from 'prop-types'
 import { Calendar, Views, Navigate, DateLocalizer } from 'react-big-calendar'
 import { luxonLocalizer } from 'react-big-calendar'
 import { DateTime } from 'luxon'
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useEvents } from "@/hooks/useEvents";
 import { format, startOfMonth, endOfMonth, getDay, isSameDay, addMonths, eachDayOfInterval, startOfDay } from "date-fns";
+import { useCalendarStore } from "@/stores/calendarStore";
 
 function QuarterView({
   date,
@@ -166,7 +166,7 @@ QuarterView.title = (date) => {
 export const CustomView = () => {
   const { data: events, isLoading, error } = useEvents();
   const [date, setDate] = useState(new Date());
-  const [activeView, setActiveView] = useState(Views.MONTH); // Track the active view
+  const { view } = useCalendarStore();
   const localizer = luxonLocalizer(DateTime);
   const { defaultDate, views } = useMemo(
     () => ({
@@ -186,25 +186,25 @@ export const CustomView = () => {
       if (calendarContainerRef.current) {
         const quarterViewElement = calendarContainerRef.current.querySelector('.quarter-view');
   
-          if (activeView === "quarter") {
-          const containerHeight = quarterViewElement.clientHeight;
-            const calendarElement = calendarContainerRef.current.querySelector('.rbc-calendar');
-            if (calendarElement) {
-              calendarContainerRef.current.style.height = `${containerHeight + 90}px`;
-            }
-          } else {
-            const calendarElement = calendarContainerRef.current.querySelector('.rbc-calendar');
-            if (calendarElement) {
-              calendarContainerRef.current.style.height = 'auto';
-            }
+        if (view === "quarter") {
+          const containerHeight = quarterViewElement?.clientHeight;
+          const calendarElement = calendarContainerRef.current.querySelector('.rbc-calendar');
+          if (calendarElement && containerHeight) {
+            calendarContainerRef.current.style.height = `${containerHeight + 90}px`;
           }
+        } else {
+          const calendarElement = calendarContainerRef.current.querySelector('.rbc-calendar');
+          if (calendarElement) {
+            calendarContainerRef.current.style.height = 'auto';
+          }
+        }
       }
     }, 0); 
-  }, [activeView, date]);
+  }, [view, date]);
 
   return (
     <div ref={calendarContainerRef} className="bg-white rounded-lg shadow-lg p-4">
-      <div  className="h-[700px]">
+      <div className="h-[700px]">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
@@ -216,10 +216,10 @@ export const CustomView = () => {
             startAccessor="start"
             endAccessor="end"
             defaultView={Views.MONTH}
+            view={view}
             date={date}
             views={views}
             onNavigate={setDate}
-            onView={setActiveView} // Track view change
             messages={{
               quarter: 'Quarter'
             }}

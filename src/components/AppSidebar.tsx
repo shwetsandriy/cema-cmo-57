@@ -6,7 +6,6 @@ import {
   MapPin,
   Monitor,
   Shield,
-  Azure,
 } from "lucide-react";
 
 import {

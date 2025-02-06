@@ -35,6 +35,7 @@ const Index = () => {
             selectedCsa={selectedCsa}
             setSelectedCsa={setSelectedCsa}/>
           <div className="flex-1 px-4 py-4">
+            <img src="banner.png"></img>
             <h1 className="text-3xl font-bold text-gray-800 mb-6">Calendar</h1>
             <CustomView 
               activeView={activeView} 

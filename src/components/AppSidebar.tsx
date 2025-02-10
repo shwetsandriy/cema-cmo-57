@@ -28,14 +28,14 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-export function AppSidebar({ setActiveView, activeView, selectedArea, setSelectedArea, selectedEventType, setSelectedEventType, selectedCsa, setSelectedCsa }) {
+export function AppSidebar({ setActiveView, activeView, selectedArea, setSelectedArea, selectedEventType, setSelectedEventType, selectedCsa, setSelectedCsa, selectedScale, setSelectedScale  }) {
   const areaMap = {
     "All": "All",
     "Central Europe": "Central Europe",
     "Africa": "Africa",
     "Middle East": "Middle East",
     "South-East Europe": "Southeastern Europe",
-    "CEMA HQ": "CEMA HQ"
+    "Cross-CEMA": "CEMA HQ"
   };
 
   const eventTypeMap = {
@@ -43,6 +43,12 @@ export function AppSidebar({ setActiveView, activeView, selectedArea, setSelecte
     "In person": "In-person",
     "Digital": "Digital",
     "Hybrid": "Hybrid",
+  };
+
+  const eventScaleMap = {
+    "All": "All",
+    "Local": "Local Scale",
+    "Global": "Global Scale"
   };
   return (
     <Sidebar style={{ marginTop: "5vh" }}>
@@ -75,7 +81,7 @@ export function AppSidebar({ setActiveView, activeView, selectedArea, setSelecte
           {/* Sub-area view Section */}
           <Collapsible>
             <CollapsibleTrigger className="flex w-full items-center justify-between px-2 py-2 text-sm hover:bg-gray-100">
-              <span>Sub-area view</span>
+              <span>Sub-Area</span>
               <ChevronDown className="h-4 w-4" />
             </CollapsibleTrigger>
             <CollapsibleContent>
@@ -98,14 +104,20 @@ export function AppSidebar({ setActiveView, activeView, selectedArea, setSelecte
           {/* Scale Section */}
           <Collapsible>
             <CollapsibleTrigger className="flex w-full items-center justify-between px-2 py-2 text-sm hover:bg-gray-100">
-              <span>Scale</span>
+              <span>Event Scale</span>
               <ChevronDown className="h-4 w-4" />
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="px-4 py-2">
                 <div className="flex flex-col items-start space-y-2">
-                  {['Local', 'Global'].map((scale) => (
-                    <button key={scale} className="text-sm">{scale}</button>
+                {Object.keys(eventScaleMap).map((scale) => (
+                    <button
+                      key={scale}
+                      className={`text-sm ${selectedScale === eventScaleMap[scale] ? "text-blue-500 font-bold" : ""}`}
+                      onClick={() => setSelectedScale(eventScaleMap[scale])}
+                    >
+                      {scale}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -138,7 +150,7 @@ export function AppSidebar({ setActiveView, activeView, selectedArea, setSelecte
           {/* CSA view Section */}
           <Collapsible>
             <CollapsibleTrigger className="flex w-full items-center justify-between px-2 py-2 text-sm hover:bg-gray-100">
-              <span>CSA view</span>
+              <span>Cross Solution Area</span>
               <ChevronDown className="h-4 w-4" />
             </CollapsibleTrigger>
             <CollapsibleContent>

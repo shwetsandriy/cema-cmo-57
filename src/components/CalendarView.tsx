@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react'
+import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { Calendar, Views, Navigate, DateLocalizer } from 'react-big-calendar'
 import { luxonLocalizer } from 'react-big-calendar'
@@ -163,10 +163,29 @@ QuarterView.title = (date) => {
   return `${formatDate(startOfQuarter)} - ${formatDate(endOfQuarter)}`;
 };
 
-export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEventType, selectedCsa  }) => {
-  const { data: events, isLoading, error } = useEvents(selectedArea, selectedEventType, selectedCsa);
+const EventDetailsModal = ({ event, onClose }) => {
+  if (!event) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
+        <button className="absolute top-2 right-2 text-gray-600" onClick={onClose}>
+          ✖
+        </button>
+        <h2 className="text-xl font-bold mb-2">{event.title}</h2>
+        <p><strong>Sub-area View</strong> {event.region}</p>
+        <p><strong>CSA view:</strong> {event.csa}</p>
+        <p><strong>Event Type:</strong> {event.eventType}</p>
+        <p><strong>Date:</strong> {format(event.start, "PPPP")}</p>
+      </div>
+    </div>
+  );
+};
+
+export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEventType, selectedCsa, selectedScale  }) => {
+  const { data: events, isLoading, error } = useEvents(selectedArea, selectedEventType, selectedCsa, selectedScale);
   const [date, setDate] = useState(new Date());
-  // const [activeView, setActiveView] = useState(Views.MONTH); // Track the active view
+  const [selectedEvent, setSelectedEvent] = useState(null); 
   const localizer = luxonLocalizer(DateTime);
   const { defaultDate, views } = useMemo(
     () => ({
@@ -202,6 +221,10 @@ export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEv
     }, 0); 
   }, [activeView, date]);
 
+  const handleSelectEvent = useCallback((event) => {
+    setSelectedEvent(event);
+  }, []);
+
   return (
     <div ref={calendarContainerRef} className="bg-white rounded-lg shadow-lg p-4">
       <div  className="h-[700px]">
@@ -221,13 +244,15 @@ export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEv
             view={activeView}
             onNavigate={setDate}
             onView={setActiveView}
+            // onSelectEvent={handleSelectEvent}
             messages={{
               quarter: 'Quarter'
             }}
-            popup
+            // popup
           />
         )}
       </div>
+      <EventDetailsModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
     </div>
   );
 };

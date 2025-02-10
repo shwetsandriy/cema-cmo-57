@@ -8,6 +8,7 @@ const Index = () => {
   const [selectedArea, setSelectedArea] = useState("All");
   const [selectedEventType, setSelectedEventType] = useState("All");
   const [selectedCsa, setSelectedCsa] = useState("All");
+  const [selectedScale, setSelectedScale] = useState("All");
   return (
     <SidebarProvider>
       <div className="min-h-screen w-full flex flex-col">
@@ -33,7 +34,9 @@ const Index = () => {
             selectedEventType={selectedEventType}
             setSelectedEventType={setSelectedEventType}
             selectedCsa={selectedCsa}
-            setSelectedCsa={setSelectedCsa}/>
+            setSelectedCsa={setSelectedCsa}
+            selectedScale={selectedScale}
+            setSelectedScale={setSelectedScale}/>
           <div className="flex-1 px-4 py-4">
             <img src="banner.png"></img>
             {/* <h1 className="text-3xl font-bold text-gray-800 mb-6">Calendar</h1> */}
@@ -42,7 +45,8 @@ const Index = () => {
               setActiveView={setActiveView} 
               selectedArea={selectedArea}
               selectedEventType={selectedEventType}
-              selectedCsa={selectedCsa} />
+              selectedCsa={selectedCsa}
+              selectedScale={selectedScale} />
           </div>
         </div>
       </div>

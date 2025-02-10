@@ -12,6 +12,7 @@ interface Value {
   field_3: { Value: string };
   field_1: { Value: string };
   field_6: { Value: string };
+  EventScale: { Value: string };
 }
 
 interface CalendarEvent {
@@ -21,7 +22,7 @@ interface CalendarEvent {
   color: string;
 }
 
-const fetchEvents = async (areaFilter, eventTypeFilter, csaFilter): Promise<CalendarEvent[]> => {
+const fetchEvents = async (areaFilter, eventTypeFilter, csaFilter, scaleFilter): Promise<CalendarEvent[]> => {
   const response = await fetch(API_URL);
   if (!response.ok) {
     throw new Error("Failed to fetch events");
@@ -31,7 +32,8 @@ const fetchEvents = async (areaFilter, eventTypeFilter, csaFilter): Promise<Cale
   const filteredEvents = data.value.filter(event => 
     (areaFilter === "All" || event.field_3?.Value === areaFilter) &&
     (eventTypeFilter === "All" || event.field_6?.Value === eventTypeFilter) &&
-    (csaFilter === "All" || event.field_1?.Value === csaFilter)
+    (csaFilter === "All" || event.field_1?.Value === csaFilter)&&
+    (scaleFilter === "All" || event.EventScale?.Value === scaleFilter)
   );
 
   return filteredEvents.map((event, index) => ({
@@ -39,27 +41,16 @@ const fetchEvents = async (areaFilter, eventTypeFilter, csaFilter): Promise<Cale
     region: event.field_3?.Value,
     csa: event.field_1?.Value,
     eventType: event.field_6?.Value,
-    start: new Date(Date.UTC(
-      new Date(event.field_10).getUTCFullYear(),
-      new Date(event.field_10).getUTCMonth(),
-      new Date(event.field_10).getUTCDate(),
-      new Date(event.field_10).getUTCHours(),
-      new Date(event.field_10).getUTCMinutes()
-    )), 
-    end: new Date(Date.UTC(
-      new Date(event.field_10).getUTCFullYear(),
-      new Date(event.field_10).getUTCMonth(),
-      new Date(event.field_10).getUTCDate(),
-      new Date(event.field_10).getUTCHours(),
-      new Date(event.field_10).getUTCMinutes()
-    )),
+    start: new Date(Date.parse(event.field_10)),
+    end: new Date(Date.parse(event.field_10)),
+    EventScale: event.EventScale?.Value,
     color: ["purple-500", "teal-500", "pink-500"][index % 3],
   }));
 };
 
-export const useEvents = (areaFilter, eventTypeFilter, csaFilter) => {
+export const useEvents = (areaFilter, eventTypeFilter, csaFilter, scaleFilter) => {
   return useQuery({
-    queryKey: ["events", areaFilter, eventTypeFilter, csaFilter],
-    queryFn: () => fetchEvents(areaFilter, eventTypeFilter, csaFilter),
+    queryKey: ["events", areaFilter, eventTypeFilter, csaFilter, scaleFilter],
+    queryFn: () => fetchEvents(areaFilter, eventTypeFilter, csaFilter, scaleFilter),
   });
 };

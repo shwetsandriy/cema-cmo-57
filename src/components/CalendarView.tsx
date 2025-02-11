@@ -6,6 +6,7 @@ import { DateTime } from 'luxon'
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useEvents } from "@/hooks/useEvents";
 import { format, startOfMonth, endOfMonth, getDay, isSameDay, addMonths, eachDayOfInterval, startOfDay } from "date-fns";
+import { X } from 'lucide-react';
 
 function QuarterView({
   date,
@@ -14,6 +15,7 @@ function QuarterView({
   max = localizer.endOf(new Date(), 'day'),
   min = localizer.startOf(new Date(), 'day'),
   scrollToTime = localizer.startOf(new Date(), 'day'),
+  onSelectEvent,
   ...props
 }) {
   const [selectedDayEvents, setSelectedDayEvents] = useState(null);
@@ -70,12 +72,13 @@ function QuarterView({
                     </span>
                     {visibleEvents.map((event) => (
                       <div 
-                        key={event.id} 
-                        style={{ backgroundColor: '#3174ad' }}
-                        className="bg-blue-500 text-white text-sm rounded p-2 mt-2 overflow-hidden"
-                      >
-                        {event.title}
-                      </div>
+                      key={event.id} 
+                      style={{ backgroundColor: '#3174ad' }}
+                      className="bg-blue-500 text-white text-sm rounded p-2 mt-2 cursor-pointer"
+                      onClick={() => onSelectEvent(event)}
+                    >
+                      {event.title}
+                    </div>
                     ))}
                     {hiddenEvents > 0 && (
                       <button
@@ -104,7 +107,14 @@ function QuarterView({
             </h3>
             <ul>
               {selectedDayEvents.events.map((event) => (
-                <li key={event.id} style={{ backgroundColor: '#3174ad' }} className="bg-blue-500 text-white p-3 rounded mt-2">{event.title}</li>
+                <li 
+                key={event.id} 
+                style={{ backgroundColor: '#3174ad' }} 
+                className="bg-blue-500 text-white p-3 rounded mt-2 cursor-pointer"
+                onClick={() => onSelectEvent(event)}
+                >
+                {event.title}
+              </li>
               ))}
             </ul>
           </div>
@@ -121,6 +131,7 @@ QuarterView.propTypes = {
   max: PropTypes.instanceOf(Date),
   min: PropTypes.instanceOf(Date),
   scrollToTime: PropTypes.instanceOf(Date),
+  onSelectEvent: PropTypes.func.isRequired,
 };
 
 QuarterView.range = (date, { localizer }) => {
@@ -164,19 +175,45 @@ QuarterView.title = (date) => {
 };
 
 const EventDetailsModal = ({ event, onClose }) => {
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
   if (!event) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
-        <button className="absolute top-2 right-2 text-gray-600" onClick={onClose}>
-          ✖
+      <div ref={modalRef} className="bg-white p-6 rounded-lg shadow-lg w-[500px] relative">
+        <button className="absolute top-2 right-2 text-[#3174ad]" onClick={onClose}>
+          <X size={25} strokeWidth={3} color="#3174ad" />
         </button>
         <h2 className="text-xl font-bold mb-2">{event.title}</h2>
-        <p><strong>Sub-area View</strong> {event.region}</p>
-        <p><strong>CSA view:</strong> {event.csa}</p>
-        <p><strong>Event Type:</strong> {event.eventType}</p>
+        <p><strong>Cross solution area:</strong> {event.csa}</p>
+        <p><strong>Sub-area</strong> {event.region}</p>
         <p><strong>Date:</strong> {format(event.start, "PPPP")}</p>
+        <p><strong>Location:</strong> {event.location}</p>
+        <p><strong>Country:</strong> {event.country}</p>
+        <p><strong>Event Type:</strong> {event.eventType}</p>
+        {event.link != null && event.link !== undefined && (
+          <p>
+            <strong>Link: </strong>
+            <a className="text-[#3174ad] underline" target="_blank" href={event.link}>
+              {event.link}
+            </a>
+          </p>
+        )}
+        <p><strong>Event Scale:</strong> {event.EventScale}</p>
       </div>
     </div>
   );
@@ -244,11 +281,11 @@ export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEv
             view={activeView}
             onNavigate={setDate}
             onView={setActiveView}
-            // onSelectEvent={handleSelectEvent}
+            onSelectEvent={handleSelectEvent}
             messages={{
               quarter: 'Quarter'
             }}
-            // popup
+            popup
           />
         )}
       </div>

@@ -14,6 +14,8 @@ interface Value {
   field_6: { Value: string };
   field_5: { Value: string };
   EventScale: { Value: string };
+  field_4: { Value: string };
+  field_13: string;
 }
 
 interface CalendarEvent {
@@ -47,6 +49,8 @@ const fetchEvents = async (areaFilter, eventTypeFilter, csaFilter, scaleFilter, 
     end: new Date(Date.parse(event.field_10)),
     country: event.field_5?.Value,
     EventScale: event.EventScale?.Value,
+    location: event.field_4?.Value,
+    link: event.field_13,
     color: ["purple-500", "teal-500", "pink-500"][index % 3],
   }));
 };

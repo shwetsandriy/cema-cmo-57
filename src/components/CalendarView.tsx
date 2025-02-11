@@ -182,8 +182,8 @@ const EventDetailsModal = ({ event, onClose }) => {
   );
 };
 
-export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEventType, selectedCsa, selectedScale  }) => {
-  const { data: events, isLoading, error } = useEvents(selectedArea, selectedEventType, selectedCsa, selectedScale);
+export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEventType, selectedCsa, selectedScale, selectedCountry  }) => {
+  const { data: events, isLoading, error } = useEvents(selectedArea, selectedEventType, selectedCsa, selectedScale, selectedCountry);
   const [date, setDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null); 
   const localizer = luxonLocalizer(DateTime);

@@ -9,6 +9,7 @@ const Index = () => {
   const [selectedEventType, setSelectedEventType] = useState("All");
   const [selectedCsa, setSelectedCsa] = useState("All");
   const [selectedScale, setSelectedScale] = useState("All");
+  const [selectedCountry, setSelectedCountry] = useState("All");
   return (
     <SidebarProvider>
       <div className="min-h-screen w-full flex flex-col">
@@ -36,7 +37,9 @@ const Index = () => {
             selectedCsa={selectedCsa}
             setSelectedCsa={setSelectedCsa}
             selectedScale={selectedScale}
-            setSelectedScale={setSelectedScale}/>
+            setSelectedScale={setSelectedScale}
+            selectedCountry={selectedCountry}
+            setSelectedCountry={setSelectedCountry}/>
           <div className="flex-1 px-4 py-4">
             <img src="banner.png"></img>
             {/* <h1 className="text-3xl font-bold text-gray-800 mb-6">Calendar</h1> */}
@@ -46,7 +49,8 @@ const Index = () => {
               selectedArea={selectedArea}
               selectedEventType={selectedEventType}
               selectedCsa={selectedCsa}
-              selectedScale={selectedScale} />
+              selectedScale={selectedScale} 
+              selectedCountry={selectedCountry} />
           </div>
         </div>
       </div>

@@ -27,15 +27,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { useAreas, useCountries, useCsaValues } from "@/hooks/useEvents";
 
-export function AppSidebar({ setActiveView, activeView, selectedArea, setSelectedArea, selectedEventType, setSelectedEventType, selectedCsa, setSelectedCsa, selectedScale, setSelectedScale  }) {
-  const areaMap = {
-    "All": "All",
-    "Central Europe": "Central Europe",
-    "Africa": "Africa",
-    "Middle East": "Middle East",
-    "South-East Europe": "Southeastern Europe",
-    "Cross-CEMA": "CEMA HQ"
+export function AppSidebar({ setActiveView, activeView, selectedArea, setSelectedArea, selectedEventType, setSelectedEventType, selectedCsa, setSelectedCsa, selectedScale, setSelectedScale, selectedCountry, setSelectedCountry  }) {
+  const areaDisplayMap: Record<string, string> = {
+    "CEMA ALL": "Cross-CEMA",
+    "Southeastern Europe": "South-East Europe",
   };
 
   const eventTypeMap = {
@@ -50,8 +47,11 @@ export function AppSidebar({ setActiveView, activeView, selectedArea, setSelecte
     "Local": "Local Scale",
     "Global": "Global Scale"
   };
+  const { data: countries = [] } = useCountries();
+  const { data: areas = []} = useAreas();
+  const { data: csaValues = [] } = useCsaValues();
   return (
-    <Sidebar style={{ marginTop: "5vh" }}>
+    <Sidebar style={{ marginTop: "7vh", maxHeight:"93vh" }}>
       <SidebarContent>
         <SidebarGroup>
           <Collapsible>
@@ -87,15 +87,41 @@ export function AppSidebar({ setActiveView, activeView, selectedArea, setSelecte
             <CollapsibleContent>
               <div className="px-4 py-2">
                 <div className="flex flex-col items-start space-y-2">
-                  {Object.keys(areaMap).map((area) => (
-                    <button
-                      key={area}
-                      className={`text-sm ${selectedArea === areaMap[area] ? "text-blue-500 font-bold" : ""}`}
-                      onClick={() => setSelectedArea(areaMap[area])}
-                    >
-                      {area}
-                    </button>
-                  ))}
+                {areas.map((area: string) => (
+                  <button
+                    key={area}
+                    className={`text-sm ${
+                      selectedArea === area ? "text-blue-500 font-bold" : ""
+                    }`}
+                    onClick={() => setSelectedArea(area)}
+                  >
+                    {areaDisplayMap[area] || area}
+                  </button>
+                ))}
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          <Collapsible>
+            <CollapsibleTrigger className="flex w-full items-center justify-between px-2 py-2 text-sm hover:bg-gray-100">
+              <span>Country view</span>
+              <ChevronDown className="h-4 w-4" />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="px-4 py-2">
+                <div className="flex flex-col items-start space-y-2">
+                {countries.map((country: string) => (
+                  <button
+                    key={country}
+                    className={`text-sm ${
+                      selectedCountry === country ? "text-blue-500 font-bold" : ""
+                    }`}
+                    onClick={() => setSelectedCountry(country)}
+                  >
+                    {country}
+                  </button>
+                ))}
                 </div>
               </div>
             </CollapsibleContent>
@@ -156,15 +182,17 @@ export function AppSidebar({ setActiveView, activeView, selectedArea, setSelecte
             <CollapsibleContent>
               <div className="px-4 py-2">
                 <div className="flex flex-col items-start space-y-2">
-                  {['All','Azure', 'xCSA', 'Modern Work', 'Security', 'BizApps'].map((csa) => (
-                    <button 
-                      key={csa} 
-                      className={`text-sm ${selectedCsa === csa ? "text-blue-500 font-bold" : ""}`}
-                      onClick={() => setSelectedCsa(csa)}
-                    >
-                      {csa}
-                    </button>
-                  ))}
+                {csaValues.map((csa: string) => (
+                  <button
+                    key={csa}
+                    className={`text-sm ${
+                      selectedCsa === csa ? "text-blue-500 font-bold" : ""
+                    }`}
+                    onClick={() => setSelectedCsa(csa)}
+                  >
+                    {csa}
+                  </button>
+                ))}
                 </div>
               </div>
             </CollapsibleContent>

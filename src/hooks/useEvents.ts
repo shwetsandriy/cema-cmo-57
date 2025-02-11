@@ -12,6 +12,7 @@ interface Value {
   field_3: { Value: string };
   field_1: { Value: string };
   field_6: { Value: string };
+  field_5: { Value: string };
   EventScale: { Value: string };
 }
 
@@ -22,7 +23,7 @@ interface CalendarEvent {
   color: string;
 }
 
-const fetchEvents = async (areaFilter, eventTypeFilter, csaFilter, scaleFilter): Promise<CalendarEvent[]> => {
+const fetchEvents = async (areaFilter, eventTypeFilter, csaFilter, scaleFilter, countryFilter): Promise<CalendarEvent[]> => {
   const response = await fetch(API_URL);
   if (!response.ok) {
     throw new Error("Failed to fetch events");
@@ -33,7 +34,8 @@ const fetchEvents = async (areaFilter, eventTypeFilter, csaFilter, scaleFilter):
     (areaFilter === "All" || event.field_3?.Value === areaFilter) &&
     (eventTypeFilter === "All" || event.field_6?.Value === eventTypeFilter) &&
     (csaFilter === "All" || event.field_1?.Value === csaFilter)&&
-    (scaleFilter === "All" || event.EventScale?.Value === scaleFilter)
+    (scaleFilter === "All" || event.EventScale?.Value === scaleFilter)&&
+    (countryFilter === "All" || event.field_5?.Value === countryFilter)
   );
 
   return filteredEvents.map((event, index) => ({
@@ -43,14 +45,77 @@ const fetchEvents = async (areaFilter, eventTypeFilter, csaFilter, scaleFilter):
     eventType: event.field_6?.Value,
     start: new Date(Date.parse(event.field_10)),
     end: new Date(Date.parse(event.field_10)),
+    country: event.field_5?.Value,
     EventScale: event.EventScale?.Value,
     color: ["purple-500", "teal-500", "pink-500"][index % 3],
   }));
 };
 
-export const useEvents = (areaFilter, eventTypeFilter, csaFilter, scaleFilter) => {
+const fetchCountries = async (): Promise<string[]> => {
+  const response = await fetch(API_URL);
+  if (!response.ok) {
+    throw new Error("Failed to fetch countries");
+  }
+  const data = await response.json();
+
+  const countries = data.value
+    .map((event: any) => event.field_5?.Value)
+    .filter((value: string | undefined): value is string => Boolean(value));
+
+  return ["All", ...new Set(countries as string[])];
+};
+
+const fetchAreas = async (): Promise<string[]> => {
+  const response = await fetch(API_URL);
+  if (!response.ok) {
+    throw new Error("Failed to fetch areas");
+  }
+  const data = await response.json();
+
+  const areas = data.value
+    .map((event: any) => event.field_3?.Value)
+    .filter((value: string | undefined): value is string => Boolean(value));
+
+  return ["All", ...new Set(areas as string[])];
+};
+
+const fetchCsaValues = async (): Promise<string[]> => {
+  const response = await fetch(API_URL);
+  if (!response.ok) {
+    throw new Error("Failed to fetch CSA values");
+  }
+  const data = await response.json();
+
+  const csaValues = data.value
+    .map((event: any) => event.field_1?.Value)
+    .filter((value: string | undefined): value is string => Boolean(value));
+
+  return ["All", ...new Set(csaValues as string[])];
+};
+
+export const useEvents = (areaFilter, eventTypeFilter, csaFilter, scaleFilter, countryFilter) => {
   return useQuery({
-    queryKey: ["events", areaFilter, eventTypeFilter, csaFilter, scaleFilter],
-    queryFn: () => fetchEvents(areaFilter, eventTypeFilter, csaFilter, scaleFilter),
+    queryKey: ["events", areaFilter, eventTypeFilter, csaFilter, scaleFilter, countryFilter],
+    queryFn: () => fetchEvents(areaFilter, eventTypeFilter, csaFilter, scaleFilter, countryFilter),
+  });
+};
+export const useCountries = () => {
+  return useQuery<string[]>({
+    queryKey: ["countries"],
+    queryFn: fetchCountries,
+  });
+};
+
+export const useAreas = () => {
+  return useQuery<string[]>({
+    queryKey: ["areas"],
+    queryFn: fetchAreas,
+  });
+};
+
+export const useCsaValues = () => {
+  return useQuery<string[]>({
+    queryKey: ["csaValues"],
+    queryFn: fetchCsaValues,
   });
 };

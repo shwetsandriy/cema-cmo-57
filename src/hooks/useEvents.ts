@@ -40,19 +40,29 @@ const fetchEvents = async (areaFilter, eventTypeFilter, csaFilter, scaleFilter, 
     (countryFilter === "All" || event.field_5?.Value === countryFilter)
   );
 
-  return filteredEvents.map((event, index) => ({
-    title: event.Title,
-    region: event.field_3?.Value,
-    csa: event.field_1?.Value,
-    eventType: event.field_6?.Value,
-    start: new Date(Date.parse(event.field_10)),
-    end: new Date(Date.parse(event.field_10)),
-    country: event.field_5?.Value,
-    EventScale: event.EventScale?.Value,
-    location: event.field_4?.Value,
-    link: event.field_13,
-    color: ["purple-500", "teal-500", "pink-500"][index % 3],
-  }));
+  return filteredEvents.map((event) => {
+    const colorMap: Record<string, string> = {
+      "Azure": "bg-blue-500",
+      "Modern Work": "bg-yellow-500",
+      "Security": "bg-green-500",
+      "BizApps": "bg-orange-500",
+      "xCSA": "bg-purple-500",
+    };
+  
+    return {
+      title: event.Title,
+      region: event.field_3?.Value,
+      csa: event.field_1?.Value,
+      eventType: event.field_6?.Value,
+      start: new Date(Date.parse(event.field_10)),
+      end: new Date(Date.parse(event.field_10)),
+      country: event.field_5?.Value,
+      EventScale: event.EventScale?.Value,
+      location: event.field_4?.Value,
+      link: event.field_13,
+      color: colorMap[event.field_1?.Value] || "gray-500",
+    };
+  });
 };
 
 const fetchCountries = async (): Promise<string[]> => {
@@ -66,8 +76,19 @@ const fetchCountries = async (): Promise<string[]> => {
     .map((event: any) => event.field_5?.Value)
     .filter((value: string | undefined): value is string => Boolean(value));
 
-  return ["All", ...new Set(countries as string[])];
+  const uniqueCountries = [...new Set(countries)];
+  
+  const indexCemaAll = uniqueCountries.indexOf("CEMA ALL");
+  const hasCemaAll = indexCemaAll !== -1;
+
+  const filteredCountries = uniqueCountries.filter(country => country !== "CEMA ALL");
+
+  const sortedCountries = filteredCountries.sort((a: string, b: string) => a.localeCompare(b));
+
+  return hasCemaAll ? ["All", "CEMA ALL", ...sortedCountries as string[]] : ["All", ...sortedCountries as string[]];
 };
+
+
 
 const fetchAreas = async (): Promise<string[]> => {
   const response = await fetch(API_URL);

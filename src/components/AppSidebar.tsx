@@ -105,7 +105,7 @@ export function AppSidebar({ setActiveView, activeView, selectedArea, setSelecte
 
           <Collapsible>
             <CollapsibleTrigger className="flex w-full items-center justify-between px-2 py-2 text-sm hover:bg-gray-100">
-              <span>Country view</span>
+              <span>Country</span>
               <ChevronDown className="h-4 w-4" />
             </CollapsibleTrigger>
             <CollapsibleContent>

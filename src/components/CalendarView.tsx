@@ -73,8 +73,9 @@ function QuarterView({
                     {visibleEvents.map((event) => (
                       <div 
                       key={event.id} 
-                      style={{ backgroundColor: '#3174ad' }}
-                      className="bg-blue-500 text-white text-sm rounded p-2 mt-2 cursor-pointer"
+                      style={{borderRadius: '1rem'}}
+                      title={event.title}
+                      className={`${event.color} text-white text-sm rounded p-2 mt-2 cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis`}
                       onClick={() => onSelectEvent(event)}
                     >
                       {event.title}
@@ -109,8 +110,8 @@ function QuarterView({
               {selectedDayEvents.events.map((event) => (
                 <li 
                 key={event.id} 
-                style={{ backgroundColor: '#3174ad' }} 
-                className="bg-blue-500 text-white p-3 rounded mt-2 cursor-pointer"
+                style={{borderRadius: '1rem'}}
+                className={`${event.color} text-white p-3 rounded mt-2 cursor-pointer`}
                 onClick={() => onSelectEvent(event)}
                 >
                 {event.title}
@@ -223,6 +224,14 @@ export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEv
   const { data: events, isLoading, error } = useEvents(selectedArea, selectedEventType, selectedCsa, selectedScale, selectedCountry);
   const [date, setDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null); 
+  const [selected, setSelected] = useState(() => {})
+  const clickRef = useRef(null)
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(clickRef?.current)
+    }
+  }, [])
   const localizer = luxonLocalizer(DateTime);
   const { defaultDate, views } = useMemo(
     () => ({
@@ -235,6 +244,14 @@ export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEv
     []
   );
 
+  const eventPropGetter = useCallback(
+    (event, isSelected) => ({
+      ...( {
+        className: event.color,
+      }),
+    }),
+    []
+  )
   const calendarContainerRef = useRef(null);
 
   useEffect(() => {
@@ -262,6 +279,10 @@ export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEv
     setSelectedEvent(event);
   }, []);
 
+  const onclose = useCallback((event) => {
+    setSelectedEvent(event);
+  }, []);
+
   return (
     <div ref={calendarContainerRef} className="bg-white rounded-lg shadow-lg p-4">
       <div  className="h-[700px]">
@@ -276,12 +297,14 @@ export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEv
             startAccessor="start"
             endAccessor="end"
             defaultView={Views.MONTH}
+            eventPropGetter={eventPropGetter}
             date={date}
             views={views}
             view={activeView}
             onNavigate={setDate}
             onView={setActiveView}
             onSelectEvent={handleSelectEvent}
+            selected={selected}
             messages={{
               quarter: 'Quarter'
             }}
@@ -289,7 +312,7 @@ export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEv
           />
         )}
       </div>
-      <EventDetailsModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+      <EventDetailsModal event={selectedEvent} onClose={() => {setSelectedEvent(null); setSelected(null) }} />
     </div>
   );
 };

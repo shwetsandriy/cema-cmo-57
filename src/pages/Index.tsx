@@ -10,6 +10,33 @@ const Index = () => {
   const [selectedCsa, setSelectedCsa] = useState("All");
   const [selectedScale, setSelectedScale] = useState("All");
   const [selectedCountry, setSelectedCountry] = useState("All");
+
+  const removeFilter = (filterValue) => {
+    if (filterValue === selectedArea) {
+      setSelectedArea("All");
+    }
+    if (filterValue === selectedEventType) {
+      setSelectedEventType("All");
+    }
+    if (filterValue === selectedCsa) {
+      setSelectedCsa("All");
+    }
+    if (filterValue === selectedScale) {
+      setSelectedScale("All"); 
+    }
+    if (filterValue === selectedCountry) {
+      setSelectedCountry("All"); 
+    }
+  };
+
+  const clearAllFilters = () => {
+      setSelectedArea("All");
+      setSelectedEventType("All");
+      setSelectedCsa("All");
+      setSelectedScale("All"); 
+      setSelectedCountry("All"); 
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen w-full flex flex-col">
@@ -50,7 +77,9 @@ const Index = () => {
               selectedEventType={selectedEventType}
               selectedCsa={selectedCsa}
               selectedScale={selectedScale} 
-              selectedCountry={selectedCountry} />
+              selectedCountry={selectedCountry}
+              removeFilter={removeFilter}
+              clearAll={clearAllFilters} />
           </div>
         </div>
       </div>

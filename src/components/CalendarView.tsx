@@ -5,6 +5,7 @@ import { luxonLocalizer } from 'react-big-calendar'
 import { DateTime } from 'luxon'
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useEvents } from "@/hooks/useEvents";
+import FilterDisplay from "./FilterDisplay";
 import { format, startOfMonth, endOfMonth, getDay, isSameDay, addMonths, eachDayOfInterval, startOfDay } from "date-fns";
 import { X } from 'lucide-react';
 
@@ -220,12 +221,21 @@ const EventDetailsModal = ({ event, onClose }) => {
   );
 };
 
-export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEventType, selectedCsa, selectedScale, selectedCountry  }) => {
+export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEventType, selectedCsa, selectedScale, selectedCountry, clearAll, removeFilter  }) => {
   const { data: events, isLoading, error } = useEvents(selectedArea, selectedEventType, selectedCsa, selectedScale, selectedCountry);
   const [date, setDate] = useState(new Date());
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedEvent, setSelectedEvent] = useState(null); 
+  const [selectedFilters, setSelectedFilters] = useState([]);
   const [selected, setSelected] = useState(() => {})
   const clickRef = useRef(null)
+
+  const filteredEvents = useMemo(() => {
+    return (events || []).filter((event) => {
+      const eventTitle = event.title.toLowerCase();
+      return eventTitle.includes(searchQuery.toLowerCase());
+    });
+  }, [events, searchQuery]);
 
   useEffect(() => {
     return () => {
@@ -255,6 +265,18 @@ export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEv
   const calendarContainerRef = useRef(null);
 
   useEffect(() => {
+    const filters = [
+      selectedArea !== "All" ? selectedArea : null,
+      selectedEventType !== "All" ? selectedEventType : null,
+      selectedCsa !== "All" ? selectedCsa : null,
+      selectedScale !== "All" ? selectedScale : null,
+      selectedCountry !== "All" ? selectedCountry : null,
+    ].filter(Boolean);
+
+    setSelectedFilters(filters);
+  }, [selectedArea, selectedEventType, selectedCsa, selectedScale, selectedCountry]);
+
+  useEffect(() => {
     setTimeout(() => {
       if (calendarContainerRef.current) {
         const quarterViewElement = calendarContainerRef.current.querySelector('.quarter-view');
@@ -279,40 +301,68 @@ export const CustomView = ({ activeView, setActiveView, selectedArea, selectedEv
     setSelectedEvent(event);
   }, []);
 
-  const onclose = useCallback((event) => {
-    setSelectedEvent(event);
-  }, []);
-
   return (
     <div ref={calendarContainerRef} className="bg-white rounded-lg shadow-lg p-4">
+      <div className="mb-4 flex items-center justify-between relative" style={{ maxWidth: '20vw' }}>
+              <input
+                type="text"
+                placeholder="Search events by name..."
+                className="border p-2 rounded-md w-full pr-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                  onClick={() => setSearchQuery('')}
+                  aria-label="Clear search"
+                >
+                  <X size={20} strokeWidth={3} color="#3174ad" />
+                </button>
+              )}
+            </div>
+            <FilterDisplay selectedFilters={selectedFilters} removeFilter={removeFilter} clearAll={clearAll} />
       <div  className="h-[700px]">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
           </div>
         ) : (
-          <Calendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            defaultView={Views.MONTH}
-            eventPropGetter={eventPropGetter}
-            date={date}
-            views={views}
-            view={activeView}
-            onNavigate={setDate}
-            onView={setActiveView}
-            onSelectEvent={handleSelectEvent}
-            selected={selected}
-            messages={{
-              quarter: 'Quarter'
-            }}
-            popup
-          />
+          <>
+            
+            <Calendar
+              localizer={localizer}
+              events={filteredEvents}
+              startAccessor="start"
+              endAccessor="end"
+              defaultView={Views.MONTH}
+              eventPropGetter={eventPropGetter}
+              date={date}
+              views={views}
+              view={activeView}
+              onNavigate={setDate}
+              onView={setActiveView}
+              onSelectEvent={handleSelectEvent}
+              selected={selected}
+              messages={{
+                quarter: 'Quarter'
+              }}
+              popup
+            />
+          </>
         )}
       </div>
       <EventDetailsModal event={selectedEvent} onClose={() => {setSelectedEvent(null); setSelected(null) }} />
     </div>
   );
+}
+
+CustomView.propTypes = {
+  activeView: PropTypes.string.isRequired,
+  setActiveView: PropTypes.func.isRequired,
+  selectedArea: PropTypes.string.isRequired,
+  selectedEventType: PropTypes.string.isRequired,
+  selectedCsa: PropTypes.string.isRequired,
+  selectedScale: PropTypes.string.isRequired,
+  selectedCountry: PropTypes.string.isRequired,
 };

@@ -51,7 +51,7 @@ export function AppSidebar({ setActiveView, activeView, selectedArea, setSelecte
   const { data: areas = []} = useAreas();
   const { data: csaValues = [] } = useCsaValues();
   return (
-    <Sidebar style={{ marginTop: "7vh", maxHeight:"93vh" }}>
+    <Sidebar style={{ marginTop: "7vh", maxHeight:"83vh" }}>
       <SidebarContent>
         <SidebarGroup>
           <Collapsible>

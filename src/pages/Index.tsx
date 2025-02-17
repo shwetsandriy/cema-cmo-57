@@ -1,7 +1,9 @@
 import { CustomView } from "@/components/CalendarView";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { launchAsync } from "@microsoft/immersive-reader-sdk"
+
 
 const Index = () => {
   const [activeView, setActiveView] = useState("month"); 
@@ -10,6 +12,95 @@ const Index = () => {
   const [selectedCsa, setSelectedCsa] = useState("All");
   const [selectedScale, setSelectedScale] = useState("All");
   const [selectedCountry, setSelectedCountry] = useState("All");
+
+  const [token, setToken] = useState('');
+
+  const styles = {
+    immersive_reader_button: {
+      marginTop: 25,
+      float: 'right'
+    }
+  };
+
+  const getCredentials = async () => {
+
+    // Verify environment variables values
+    if( !import.meta.env.VITE_REACT_APP_CLIENT_ID ){
+      console.log("ClientId is null! Did you add that info to .env file? See ReadMe.md.")
+    }
+    if( !import.meta.env.VITE_REACT_APP_CLIENT_SECRET ){
+      console.log("Client Secret is null! Did you add that info to .env file? See ReadMe.md.")
+    }
+    if( !import.meta.env.VITE_REACT_APP_TENANT_ID ){
+      console.log("TenantId is null! Did you add that info to .env file? See ReadMe.md.")
+    }
+    if( !import.meta.env.VITE_REACT_APP_SUBDOMAIN ){
+      console.log("Subdomain is null! Did you add that info to .env file? See ReadMe.md.")
+    }
+
+    // Form details to be passed to fetch
+    const details = {
+      grant_type: 'client_credentials',
+      client_id: import.meta.env.VITE_REACT_APP_CLIENT_ID,
+      client_secret: import.meta.env.VITE_REACT_APP_CLIENT_SECRET,
+      resource: 'https://cognitiveservices.azure.com/'
+    };
+    const formBody = new URLSearchParams(details).toString();
+    // Build up the form data -> it needs to be converted to a form type
+//     let formBodyArr = [];
+// for (var property in details) {
+//   var encodedKey = encodeURIComponent(property);
+//   var encodedValue = details[property].startsWith("http") 
+//     ? details[property]  // Якщо значення URL, не кодуємо його
+//     : encodeURIComponent(details[property]);
+
+//   formBodyArr.push(encodedKey + "=" + encodedValue);
+// }
+
+    // const formBodyStr = formBodyArr.join("&"); // This is what we can pass to the post request
+
+    try {
+      const response = await fetch("http://localhost:5000/api/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+  
+      const json = await response.json();
+      if (response.ok) {
+        console.log("Access Token:", json.access_token);
+        setToken(json.access_token);
+      } else {
+        console.error("Error fetching token:", json);
+      }
+    } catch (err) {
+      console.error("Request failed", err);
+    }
+  }
+
+  const launchReader = async () => {
+
+    const data = {
+      title: "Immersive Reader",
+      chunks: [{
+        content: document.getElementById('ir-content').innerHTML,
+        mimeType: "text/html"
+      }]
+    };
+
+    // Learn more about options https://docs.microsoft.com/azure/cognitive-services/immersive-reader/reference#options
+    const options = {
+      "uiZIndex": 2000,
+      "cookiePolicy": 1
+    };
+
+    try {
+      await launchAsync(token, import.meta.env.VITE_REACT_APP_SUBDOMAIN, data, options)
+    }
+    catch (error) {
+      console.log(error);
+      alert("Error in launching the Immersive Reader. Check the console.");
+    }
+  }
 
   const removeFilter = (filterValue) => {
     if (filterValue === selectedArea) {
@@ -36,9 +127,14 @@ const Index = () => {
       setSelectedScale("All"); 
       setSelectedCountry("All"); 
   };
+  
+  useEffect(() => {
+    getCredentials();
+  }, [])
 
   return (
-    <SidebarProvider>
+    <div id={'ir-content'}>
+<SidebarProvider>
       <div className="min-h-screen w-full flex flex-col">
         {/* Header */}
         <header className="w-full bg-[#F2FCE2] shadow-sm py-2 px-4 sticky top-0 z-50">
@@ -80,10 +176,21 @@ const Index = () => {
               selectedCountry={selectedCountry}
               removeFilter={removeFilter}
               clearAll={clearAllFilters} />
+              
           </div>
         </div>
       </div>
     </SidebarProvider>
+    <button 
+              className="fixed bottom-4 z-50 mt-2 ml-4 rounded-[calc(0.5rem-2px)] border border-gray-300 px-4 bg-white py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+              data-button-style="iconAndText" 
+              data-locale="en" 
+              onClick={launchReader}
+            >
+              Immersive Reader
+            </button>
+    </div>
+    
   );
 };
 
